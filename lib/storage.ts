@@ -1,36 +1,77 @@
 import { Meeting, Task } from "./types";
+import { supabase } from "./supabase";
 import { DEMO_MEETINGS } from "./demoData";
 
-export function getMeetings(): Meeting[] {
-  if (typeof window === "undefined") return [];
-  const stored = JSON.parse(localStorage.getItem("meetings") || "[]") as Meeting[];
-  if (stored.length === 0) {
-    localStorage.setItem("meetings", JSON.stringify(DEMO_MEETINGS));
-    return DEMO_MEETINGS;
+export async function getMeetings(): Promise<Meeting[]> {
+  const { data, error } = await supabase
+    .from("meetings")
+    .select("*")
+    .order("meeting_date", { ascending: false });
+
+  if (error) {
+    console.error("getMeetings error:", error.message);
+    return [];
   }
-  return stored;
+
+  if (!data || data.length === 0) {
+    await seedDemoMeetings();
+    return [...DEMO_MEETINGS].reverse();
+  }
+
+  return data as Meeting[];
 }
 
-export function getMeeting(id: string): Meeting | null {
-  const fromSession = sessionStorage.getItem(`meeting_${id}`);
-  if (fromSession) return JSON.parse(fromSession);
-  return getMeetings().find((m) => m.id === id) ?? null;
+async function seedDemoMeetings() {
+  for (const m of DEMO_MEETINGS) {
+    await supabase.from("meetings").upsert({
+      id: m.id,
+      title: m.title,
+      meeting_date: m.meeting_date,
+      created_at: m.created_at,
+      analysis: m.analysis,
+    });
+  }
 }
 
-export function saveMeeting(meeting: Meeting): void {
-  sessionStorage.setItem(`meeting_${meeting.id}`, JSON.stringify(meeting));
-  const meetings = getMeetings();
-  const idx = meetings.findIndex((m) => m.id === meeting.id);
-  if (idx >= 0) meetings[idx] = meeting;
-  else meetings.unshift(meeting);
-  localStorage.setItem("meetings", JSON.stringify(meetings.slice(0, 50)));
+export async function getMeeting(id: string): Promise<Meeting | null> {
+  if (typeof window !== "undefined") {
+    const cached = sessionStorage.getItem(`meeting_${id}`);
+    if (cached) return JSON.parse(cached);
+  }
+
+  const { data, error } = await supabase
+    .from("meetings")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) return null;
+  return data as Meeting;
 }
 
-export function updateTask(meetingId: string, taskIndex: number, patch: Partial<Task>): Meeting | null {
-  const meeting = getMeeting(meetingId);
+export async function saveMeeting(meeting: Meeting): Promise<void> {
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem(`meeting_${meeting.id}`, JSON.stringify(meeting));
+  }
+
+  await supabase.from("meetings").upsert({
+    id: meeting.id,
+    title: meeting.title,
+    meeting_date: meeting.meeting_date,
+    created_at: meeting.created_at,
+    analysis: meeting.analysis,
+  });
+}
+
+export async function updateTask(
+  meetingId: string,
+  taskIndex: number,
+  patch: Partial<Task>
+): Promise<Meeting | null> {
+  const meeting = await getMeeting(meetingId);
   if (!meeting) return null;
   meeting.analysis.tasks[taskIndex] = { ...meeting.analysis.tasks[taskIndex], ...patch };
-  saveMeeting(meeting);
+  await saveMeeting(meeting);
   return meeting;
 }
 
@@ -41,5 +82,5 @@ export function tasksToCSV(meeting: Meeting): string {
       .map((v) => `"${(v || "").replace(/"/g, '""')}"`)
       .join(",")
   );
-  return "﻿" + [header, ...rows].join("\n"); // BOM for Hebrew in Excel/Sheets
+  return "﻿" + [header, ...rows].join("\n");
 }

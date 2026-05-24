@@ -28,8 +28,10 @@ export default function HomePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setMeetings(getMeetings());
-    if (getMeetings().length === 0) setShowForm(true);
+    getMeetings().then((ms) => {
+      setMeetings(ms);
+      if (ms.length === 0) setShowForm(true);
+    });
   }, []);
 
   const handleSubmit = async () => {
@@ -54,7 +56,7 @@ export default function HomePage() {
       }
 
       const meeting: Meeting = await res.json();
-      saveMeeting(meeting);
+      await saveMeeting(meeting);
       router.push(`/analysis/${meeting.id}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "שגיאה לא ידועה");

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, Calendar, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { Meeting } from "@/lib/types";
+import { getMeetings } from "@/lib/storage";
 import { formatDate } from "@/lib/utils";
 import AppHeader from "@/app/components/AppHeader";
 
@@ -12,8 +13,7 @@ export default function HistoryPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("meetings") || "[]") as Meeting[];
-    setMeetings(stored);
+    getMeetings().then(setMeetings);
   }, []);
 
   const getStats = (m: Meeting) => {

@@ -135,16 +135,15 @@ export default function AnalysisPage() {
   const [allMeetings, setAllMeetings] = useState<Meeting[]>([]);
 
   useEffect(() => {
-    const m = getMeeting(id);
-    if (m) setMeeting(m);
-    setAllMeetings(getMeetings());
+    getMeeting(id).then((m) => { if (m) setMeeting(m); });
+    getMeetings().then(setAllMeetings);
   }, [id]);
 
-  const handleSaveTask = useCallback((taskIndex: number, patch: Partial<Task>) => {
-    const updated = updateTask(id, taskIndex, patch);
+  const handleSaveTask = useCallback(async (taskIndex: number, patch: Partial<Task>) => {
+    const updated = await updateTask(id, taskIndex, patch);
     if (updated) {
       setMeeting({ ...updated });
-      setAllMeetings(getMeetings());
+      getMeetings().then(setAllMeetings);
     }
   }, [id]);
 
