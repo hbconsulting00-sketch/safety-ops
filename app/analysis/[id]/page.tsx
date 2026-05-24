@@ -75,7 +75,7 @@ function EditableTask({
     <tr className="bg-blue-50 border-y border-blue-200">
       <td className="py-2 pr-2">
         <textarea
-          className="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-hb-blue"
+          className="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#2E81C5]"
           value={draft.action}
           rows={2}
           onChange={(e) => setDraft((d) => ({ ...d, action: e.target.value }))}
@@ -83,7 +83,7 @@ function EditableTask({
       </td>
       <td className="py-2 px-4">
         <input
-          className="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-hb-blue"
+          className="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#2E81C5]"
           value={draft.responsible}
           onChange={(e) => setDraft((d) => ({ ...d, responsible: e.target.value }))}
           placeholder="שם האחראי"
@@ -92,7 +92,7 @@ function EditableTask({
       <td className="py-2 px-4">
         <input
           type="date"
-          className="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-hb-blue"
+          className="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#2E81C5]"
           value={draft.deadline}
           onChange={(e) => setDraft((d) => ({ ...d, deadline: e.target.value }))}
         />
@@ -100,7 +100,7 @@ function EditableTask({
       <td className="py-2 pl-2">
         <div className="flex flex-col gap-1">
           <select
-            className="border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-hb-blue"
+            className="border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#2E81C5]"
             value={draft.status}
             onChange={(e) => setDraft((d) => ({ ...d, status: e.target.value as TaskStatus }))}
           >
@@ -111,7 +111,7 @@ function EditableTask({
           <div className="flex gap-1">
             <button
               onClick={() => { onSave(index, draft); setEditing(false); }}
-              className="flex-1 text-xs bg-hb-blue text-white rounded-lg py-1 hover:bg-hb-blue/90 transition-colors"
+              className="flex-1 text-xs bg-[#2E81C5] text-white rounded-lg py-1 hover:bg-[#2E81C5]/90 transition-colors"
             >
               שמור
             </button>
@@ -192,7 +192,7 @@ export default function AnalysisPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex justify-end gap-2 flex-wrap print:hidden">
         <button
           onClick={handleExportCSV}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-hb-green/10 hover:bg-hb-green/20 border border-hb-green/30 rounded-lg text-sm font-medium text-hb-green transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#93C93E]/10 hover:bg-[#93C93E]/20 border border-[#93C93E]/30 rounded-lg text-sm font-medium text-[#93C93E] transition-colors"
         >
           <TableIcon size={15} />
           ייצוא לשיטס
@@ -214,7 +214,7 @@ export default function AnalysisPage() {
           {/* 1. סיכום מנהלים */}
           <section id="block-summary" className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm scroll-mt-20">
             <h2 className="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-hb-blue text-white text-xs flex items-center justify-center font-bold">1</span>
+              <span className="w-6 h-6 rounded-full bg-[#2E81C5] text-white text-xs flex items-center justify-center font-bold">1</span>
               סיכום מנהלים
             </h2>
             <p className="text-slate-700 leading-relaxed">{analysis.executive_summary}</p>
@@ -224,7 +224,7 @@ export default function AnalysisPage() {
           {analysis.key_decisions.length > 0 && (
             <section id="block-decisions" className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm scroll-mt-20">
               <h2 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-hb-blue text-white text-xs flex items-center justify-center font-bold">2</span>
+                <span className="w-6 h-6 rounded-full bg-[#2E81C5] text-white text-xs flex items-center justify-center font-bold">2</span>
                 החלטות מרכזיות
               </h2>
               <ol className="space-y-2">
@@ -244,7 +244,7 @@ export default function AnalysisPage() {
           <section id="block-tasks" className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm scroll-mt-20">
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-hb-blue text-white text-xs flex items-center justify-center font-bold">3</span>
+                <span className="w-6 h-6 rounded-full bg-[#2E81C5] text-white text-xs flex items-center justify-center font-bold">3</span>
                 משימות לביצוע
               </h2>
               <span className="text-sm text-slate-500 mr-auto">
@@ -314,20 +314,20 @@ export default function AnalysisPage() {
 
           {/* תובנות היסטוריות */}
           {analysis.historical_insights?.length > 0 && (
-            <section id="block-insights" className="bg-hb-purple/5 rounded-2xl border border-hb-purple/20 p-6 shadow-sm scroll-mt-20">
-              <h2 className="text-base font-bold text-hb-purple mb-4 flex items-center gap-2">
-                <TrendingUp size={18} className="text-hb-purple" />
+            <section id="block-insights" className="bg-[#78318E]/5 rounded-2xl border border-[#78318E]/20 p-6 shadow-sm scroll-mt-20">
+              <h2 className="text-base font-bold text-[#78318E] mb-4 flex items-center gap-2">
+                <TrendingUp size={18} className="text-[#78318E]" />
                 תובנות מצטברות מהיסטוריית הדיונים
               </h2>
               <div className="space-y-3">
                 {analysis.historical_insights.map((insight, i) => (
-                  <div key={i} className="bg-white rounded-xl border border-hb-purple/20 p-4 flex gap-3">
-                    <span className="text-hb-purple mt-0.5 flex-shrink-0">
+                  <div key={i} className="bg-white rounded-xl border border-[#78318E]/20 p-4 flex gap-3">
+                    <span className="text-[#78318E] mt-0.5 flex-shrink-0">
                       {INSIGHT_ICONS[insight.type] || <TrendingUp size={18} />}
                     </span>
                     <div>
-                      <p className="font-semibold text-hb-purple mb-1">{insight.title}</p>
-                      <p className="text-hb-purple/80 text-sm leading-relaxed">{insight.body}</p>
+                      <p className="font-semibold text-[#78318E] mb-1">{insight.title}</p>
+                      <p className="text-[#78318E]/80 text-sm leading-relaxed">{insight.body}</p>
                     </div>
                   </div>
                 ))}

@@ -53,8 +53,8 @@ export default function CrossMeetingSummary({ meetings }: Props) {
         className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <TrendingUp size={18} className="text-hb-blue" />
-          <span className="font-bold text-hb-dark">סיכום מצטבר — כלל הדיונים</span>
+          <TrendingUp size={18} className="text-[#2E81C5]" />
+          <span className="font-bold text-[#333333]">סיכום מצטבר — כלל הדיונים</span>
           <span className="text-xs text-slate-400 font-normal">({meetings.length} דיונים)</span>
         </div>
         {expanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
@@ -65,7 +65,7 @@ export default function CrossMeetingSummary({ meetings }: Props) {
 
           {allOpenTasks.length > 0 && (
             <div className="px-5 py-4">
-              <h3 className="text-sm font-semibold text-hb-dark mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-[#333333] mb-3 flex items-center gap-2">
                 <Clock size={15} className="text-orange-500" />
                 משימות שעדיין לא טופלו
                 <span className="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-full font-semibold">
@@ -83,7 +83,7 @@ export default function CrossMeetingSummary({ meetings }: Props) {
                       t.status === "באיחור" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-600"
                     }`}>{t.status}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-hb-dark truncate">{t.action}</p>
+                      <p className="text-sm text-[#333333] truncate">{t.action}</p>
                       <p className="text-xs text-slate-400 mt-0.5">
                         {t.meetingTitle} · {formatDate(t.meetingDate)}
                         {t.responsible && ` · ${t.responsible}`}
@@ -100,8 +100,8 @@ export default function CrossMeetingSummary({ meetings }: Props) {
 
           {topOwners.length > 0 && (
             <div className="px-5 py-4">
-              <h3 className="text-sm font-semibold text-hb-dark mb-3 flex items-center gap-2">
-                <Users size={15} className="text-hb-blue" />
+              <h3 className="text-sm font-semibold text-[#333333] mb-3 flex items-center gap-2">
+                <Users size={15} className="text-[#2E81C5]" />
                 אחראים עם משימות פתוחות
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -124,7 +124,7 @@ export default function CrossMeetingSummary({ meetings }: Props) {
 
           {meetingsWithNoOwner.length > 0 && (
             <div className="px-5 py-4">
-              <h3 className="text-sm font-semibold text-hb-dark mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-[#333333] mb-3 flex items-center gap-2">
                 <AlertTriangle size={15} className="text-amber-500" />
                 דיונים עם משימות ללא אחראי — {meetingsWithNoOwner.length} מתוך {meetings.length}
               </h3>
@@ -146,12 +146,12 @@ export default function CrossMeetingSummary({ meetings }: Props) {
           )}
 
           {zombieCandidates.length > 3 && (
-            <div className="px-5 py-4 bg-hb-purple/5">
-              <h3 className="text-sm font-semibold text-hb-purple mb-2 flex items-center gap-2">
-                <TrendingUp size={15} className="text-hb-purple" />
+            <div className="px-5 py-4 bg-[#78318E]/5">
+              <h3 className="text-sm font-semibold text-[#78318E] mb-2 flex items-center gap-2">
+                <TrendingUp size={15} className="text-[#78318E]" />
                 תובנה — {zombieCandidates.length} משימות נותרו פתוחות בסך הכל
               </h3>
-              <p className="text-xs text-hb-purple/80 leading-relaxed">
+              <p className="text-xs text-[#78318E]/80 leading-relaxed">
                 מתוך {meetings.length} דיונים שנותחו, {allOpenTasks.filter((t) => t.status === "באיחור").length} משימות עברו את הדדליין ו-{allOpenTasks.filter((t) => !t.responsible).length} משימות עדיין ללא אחראי מוגדר. מומלץ לקיים דיון מעקב ממוקד.
               </p>
             </div>

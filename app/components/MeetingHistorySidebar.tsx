@@ -40,7 +40,7 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
   return (
     <aside className="w-full lg:w-72 flex-shrink-0 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-        <p className="text-sm font-bold text-hb-dark">היסטוריית דיונים</p>
+        <p className="text-sm font-bold text-[#333333]">היסטוריית דיונים</p>
         <p className="text-xs text-slate-400">{meetings.length} דיונים שמורים</p>
       </div>
       <div className="overflow-y-auto max-h-96 lg:max-h-[calc(100vh-12rem)] divide-y divide-slate-100">
@@ -54,11 +54,11 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
               <button
                 onClick={() => setOpenId(isOpen ? null : m.id)}
                 className={`w-full text-right px-4 py-3 flex items-start gap-2 hover:bg-slate-50 transition-colors ${
-                  isOpen ? "bg-hb-blue/5" : ""
+                  isOpen ? "bg-[#2E81C5]/5" : ""
                 }`}
               >
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium truncate ${isOpen ? "text-hb-blue" : "text-hb-dark"}`}>
+                  <p className={`text-sm font-medium truncate ${isOpen ? "text-[#2E81C5]" : "text-[#333333]"}`}>
                     {m.title}
                   </p>
                   <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
@@ -81,14 +81,14 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
                   )}
                 </div>
                 {isOpen ? (
-                  <ChevronDown size={15} className="text-hb-blue flex-shrink-0 mt-0.5" />
+                  <ChevronDown size={15} className="text-[#2E81C5] flex-shrink-0 mt-0.5" />
                 ) : (
                   <ChevronLeft size={15} className="text-slate-400 flex-shrink-0 mt-0.5" />
                 )}
               </button>
 
               {isOpen && (
-                <div className="bg-hb-blue/3 border-t border-hb-blue/10 pb-1">
+                <div className="bg-[#2E81C5]/3 border-t border-[#2E81C5]/10 pb-1">
                   {BLOCKS.map((block) => {
                     let count: number | null = null;
                     if (block.key === "block-tasks") count = m.analysis.tasks.length;
@@ -101,7 +101,7 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
                       <button
                         key={block.key}
                         onClick={() => navigateToBlock(m, block.key)}
-                        className="w-full text-right px-6 py-2 text-xs text-slate-600 hover:text-hb-blue hover:bg-hb-blue/8 transition-colors flex items-center gap-2"
+                        className="w-full text-right px-6 py-2 text-xs text-slate-600 hover:text-[#2E81C5] hover:bg-[#2E81C5]/8 transition-colors flex items-center gap-2"
                       >
                         <span className="text-slate-400">{block.icon}</span>
                         <span>{block.label}</span>
@@ -116,11 +116,11 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
                   {m.analysis.historical_insights?.length > 0 && (
                     <button
                       onClick={() => navigateToBlock(m, "block-insights")}
-                      className="w-full text-right px-6 py-2 text-xs text-hb-purple hover:bg-hb-purple/8 transition-colors flex items-center gap-2"
+                      className="w-full text-right px-6 py-2 text-xs text-[#78318E] hover:bg-[#78318E]/8 transition-colors flex items-center gap-2"
                     >
                       <TrendingUp size={13} />
                       <span>תובנות היסטוריות</span>
-                      <span className="mr-auto bg-hb-purple/10 text-hb-purple rounded-full px-1.5 py-0.5 text-xs">
+                      <span className="mr-auto bg-[#78318E]/10 text-[#78318E] rounded-full px-1.5 py-0.5 text-xs">
                         {m.analysis.historical_insights.length}
                       </span>
                     </button>
@@ -130,7 +130,7 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
                       sessionStorage.setItem(`meeting_${m.id}`, JSON.stringify(m));
                       router.push(`/analysis/${m.id}`);
                     }}
-                    className="w-full text-right px-6 py-2 text-xs text-hb-blue font-semibold hover:underline"
+                    className="w-full text-right px-6 py-2 text-xs text-[#2E81C5] font-semibold hover:underline"
                   >
                     פתח דיון מלא ←
                   </button>

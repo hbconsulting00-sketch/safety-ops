@@ -15,12 +15,12 @@ export default function AppHeader({ title, subtitle }: { title?: string; subtitl
           onClick={() => router.push("/")}
           className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
         >
-          <ShieldCheck className="text-hb-blue" size={22} />
+          <ShieldCheck className="text-[#2E81C5]" size={22} />
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-bold text-hb-dark leading-none">AI Operations & Insights</p>
+            <p className="text-sm font-bold text-[#333333] leading-none">AI Operations & Insights</p>
             <p className="text-xs text-slate-400 leading-none mt-0.5">ממונה בטיחות</p>
           </div>
-          <span className="text-sm font-bold text-hb-dark sm:hidden">AI Ops</span>
+          <span className="text-sm font-bold text-[#333333] sm:hidden">AI Ops</span>
         </button>
 
         {/* Page title — shown on analysis page, hidden on mobile */}
@@ -39,7 +39,7 @@ export default function AppHeader({ title, subtitle }: { title?: string; subtitl
           <button
             onClick={() => router.push("/")}
             className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              path === "/" ? "bg-hb-blue/10 text-hb-blue" : "text-slate-600 hover:bg-slate-100"
+              path === "/" ? "bg-[#2E81C5]/10 text-[#2E81C5]" : "text-slate-600 hover:bg-slate-100"
             }`}
           >
             <Home size={15} />
@@ -48,7 +48,7 @@ export default function AppHeader({ title, subtitle }: { title?: string; subtitl
           <button
             onClick={() => router.push("/history")}
             className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              path === "/history" ? "bg-hb-blue/10 text-hb-blue" : "text-slate-600 hover:bg-slate-100"
+              path === "/history" ? "bg-[#2E81C5]/10 text-[#2E81C5]" : "text-slate-600 hover:bg-slate-100"
             }`}
           >
             <History size={15} />
@@ -56,7 +56,7 @@ export default function AppHeader({ title, subtitle }: { title?: string; subtitl
           </button>
           <button
             onClick={() => router.push("/")}
-            className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-sm font-medium bg-hb-blue text-white hover:bg-hb-blue/90 transition-colors"
+            className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-sm font-medium bg-[#2E81C5] text-white hover:bg-[#2E81C5]/90 transition-colors"
           >
             <Plus size={15} />
             <span className="hidden sm:inline">דיון חדש</span>
