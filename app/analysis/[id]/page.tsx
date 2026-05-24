@@ -186,7 +186,7 @@ export default function AnalysisPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-200">
       <AppHeader title={meeting.title} subtitle={formatDate(meeting.meeting_date, true)} />
       {/* Action buttons */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex justify-end gap-2 flex-wrap print:hidden">
