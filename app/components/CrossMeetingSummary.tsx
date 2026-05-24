@@ -16,7 +16,6 @@ export default function CrossMeetingSummary({ meetings }: Props) {
 
   if (meetings.length < 2) return null;
 
-  // משימות פתוחות ממוינות לפי גיל (הישנות ביותר קודם)
   const allOpenTasks = meetings
     .flatMap((m) =>
       m.analysis.tasks
@@ -25,14 +24,6 @@ export default function CrossMeetingSummary({ meetings }: Props) {
     )
     .sort((a, b) => a.meetingDate.localeCompare(b.meetingDate));
 
-  // נושאים חוזרים בדגלים אדומים
-  const redFlagWords = meetings.flatMap((m) =>
-    m.analysis.red_flags.flatMap((f) => f.split(/\s+/).filter((w) => w.length > 4))
-  );
-  const wordCount: Record<string, number> = {};
-  redFlagWords.forEach((w) => { wordCount[w] = (wordCount[w] || 0) + 1; });
-
-  // אחראים עם הכי הרבה משימות פתוחות
   const ownerMap: Record<string, { count: number; overdue: number }> = {};
   allOpenTasks.forEach((t) => {
     if (!t.responsible) return;
@@ -44,14 +35,11 @@ export default function CrossMeetingSummary({ meetings }: Props) {
     .sort((a, b) => b[1].count - a[1].count)
     .slice(0, 3);
 
-  // משימות שחוזרות בלי סגירה (zombie — מופיעות בדיונים מרובים)
-  const allActions = meetings.flatMap((m) =>
-    m.analysis.tasks.map((t) => ({ action: t.action, meetingDate: m.meeting_date, status: t.status, meeting: m }))
-  );
-  const zombieCandidates = allActions.filter((t) => t.status !== "הושלם");
-
-  // כמה דיונים יש ליקויים ללא אחראי
   const meetingsWithNoOwner = meetings.filter((m) => m.analysis.tasks_without_owner.length > 0);
+
+  const zombieCandidates = meetings
+    .flatMap((m) => m.analysis.tasks.map((t) => ({ action: t.action, status: t.status })))
+    .filter((t) => t.status !== "הושלם");
 
   const goTo = (m: Meeting) => {
     sessionStorage.setItem(`meeting_${m.id}`, JSON.stringify(m));
@@ -65,8 +53,8 @@ export default function CrossMeetingSummary({ meetings }: Props) {
         className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <TrendingUp size={18} className="text-blue-600" />
-          <span className="font-bold text-slate-800">סיכום מצטבר — כלל הדיונים</span>
+          <TrendingUp size={18} className="text-hb-blue" />
+          <span className="font-bold text-hb-dark">סיכום מצטבר — כלל הדיונים</span>
           <span className="text-xs text-slate-400 font-normal">({meetings.length} דיונים)</span>
         </div>
         {expanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
@@ -75,10 +63,9 @@ export default function CrossMeetingSummary({ meetings }: Props) {
       {expanded && (
         <div className="border-t border-slate-100 divide-y divide-slate-100">
 
-          {/* משימות פתוחות ישנות */}
           {allOpenTasks.length > 0 && (
             <div className="px-5 py-4">
-              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-hb-dark mb-3 flex items-center gap-2">
                 <Clock size={15} className="text-orange-500" />
                 משימות שעדיין לא טופלו
                 <span className="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-full font-semibold">
@@ -96,7 +83,7 @@ export default function CrossMeetingSummary({ meetings }: Props) {
                       t.status === "באיחור" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-600"
                     }`}>{t.status}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-slate-800 truncate">{t.action}</p>
+                      <p className="text-sm text-hb-dark truncate">{t.action}</p>
                       <p className="text-xs text-slate-400 mt-0.5">
                         {t.meetingTitle} · {formatDate(t.meetingDate)}
                         {t.responsible && ` · ${t.responsible}`}
@@ -111,11 +98,10 @@ export default function CrossMeetingSummary({ meetings }: Props) {
             </div>
           )}
 
-          {/* אחראים עם משימות פתוחות */}
           {topOwners.length > 0 && (
             <div className="px-5 py-4">
-              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                <Users size={15} className="text-blue-500" />
+              <h3 className="text-sm font-semibold text-hb-dark mb-3 flex items-center gap-2">
+                <Users size={15} className="text-hb-blue" />
                 אחראים עם משימות פתוחות
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -136,10 +122,9 @@ export default function CrossMeetingSummary({ meetings }: Props) {
             </div>
           )}
 
-          {/* דיונים עם משימות ללא אחראי */}
           {meetingsWithNoOwner.length > 0 && (
             <div className="px-5 py-4">
-              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-hb-dark mb-3 flex items-center gap-2">
                 <AlertTriangle size={15} className="text-amber-500" />
                 דיונים עם משימות ללא אחראי — {meetingsWithNoOwner.length} מתוך {meetings.length}
               </h3>
@@ -160,14 +145,13 @@ export default function CrossMeetingSummary({ meetings }: Props) {
             </div>
           )}
 
-          {/* zombie tasks */}
           {zombieCandidates.length > 3 && (
-            <div className="px-5 py-4 bg-purple-50/50">
-              <h3 className="text-sm font-semibold text-purple-800 mb-2 flex items-center gap-2">
-                <TrendingUp size={15} className="text-purple-500" />
+            <div className="px-5 py-4 bg-hb-purple/5">
+              <h3 className="text-sm font-semibold text-hb-purple mb-2 flex items-center gap-2">
+                <TrendingUp size={15} className="text-hb-purple" />
                 תובנה — {zombieCandidates.length} משימות נותרו פתוחות בסך הכל
               </h3>
-              <p className="text-xs text-purple-600 leading-relaxed">
+              <p className="text-xs text-hb-purple/80 leading-relaxed">
                 מתוך {meetings.length} דיונים שנותחו, {allOpenTasks.filter((t) => t.status === "באיחור").length} משימות עברו את הדדליין ו-{allOpenTasks.filter((t) => !t.responsible).length} משימות עדיין ללא אחראי מוגדר. מומלץ לקיים דיון מעקב ממוקד.
               </p>
             </div>

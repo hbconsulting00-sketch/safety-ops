@@ -5,6 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-hb-blue: #2E81C5;
+  --color-hb-green: #93C93E;
+  --color-hb-purple: #78318E;
+  --color-hb-dark: #333333;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);

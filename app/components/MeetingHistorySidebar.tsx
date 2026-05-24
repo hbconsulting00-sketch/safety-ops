@@ -30,7 +30,7 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
 
   if (meetings.length === 0) {
     return (
-      <aside className="w-72 flex-shrink-0 bg-white border border-slate-200 rounded-2xl p-4">
+      <aside className="w-full lg:w-72 flex-shrink-0 bg-white border border-slate-200 rounded-2xl p-4">
         <p className="text-sm font-semibold text-slate-500 mb-3">היסטוריית דיונים</p>
         <p className="text-sm text-slate-400 text-center py-8">עדיין אין דיונים שמורים</p>
       </aside>
@@ -38,12 +38,12 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
   }
 
   return (
-    <aside className="w-72 flex-shrink-0 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+    <aside className="w-full lg:w-72 flex-shrink-0 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-        <p className="text-sm font-bold text-slate-700">היסטוריית דיונים</p>
+        <p className="text-sm font-bold text-hb-dark">היסטוריית דיונים</p>
         <p className="text-xs text-slate-400">{meetings.length} דיונים שמורים</p>
       </div>
-      <div className="overflow-y-auto max-h-[calc(100vh-12rem)] divide-y divide-slate-100">
+      <div className="overflow-y-auto max-h-96 lg:max-h-[calc(100vh-12rem)] divide-y divide-slate-100">
         {meetings.map((m) => {
           const isOpen = openId === m.id;
           const overdue = m.analysis.tasks.filter((t) => t.status === "באיחור").length;
@@ -51,15 +51,14 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
 
           return (
             <div key={m.id}>
-              {/* Meeting header */}
               <button
                 onClick={() => setOpenId(isOpen ? null : m.id)}
                 className={`w-full text-right px-4 py-3 flex items-start gap-2 hover:bg-slate-50 transition-colors ${
-                  isOpen ? "bg-blue-50" : ""
+                  isOpen ? "bg-hb-blue/5" : ""
                 }`}
               >
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium truncate ${isOpen ? "text-blue-700" : "text-slate-800"}`}>
+                  <p className={`text-sm font-medium truncate ${isOpen ? "text-hb-blue" : "text-hb-dark"}`}>
                     {m.title}
                   </p>
                   <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
@@ -82,30 +81,27 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
                   )}
                 </div>
                 {isOpen ? (
-                  <ChevronDown size={15} className="text-blue-500 flex-shrink-0 mt-0.5" />
+                  <ChevronDown size={15} className="text-hb-blue flex-shrink-0 mt-0.5" />
                 ) : (
                   <ChevronLeft size={15} className="text-slate-400 flex-shrink-0 mt-0.5" />
                 )}
               </button>
 
-              {/* Expanded blocks */}
               {isOpen && (
-                <div className="bg-blue-50/50 border-t border-blue-100 pb-1">
+                <div className="bg-hb-blue/3 border-t border-hb-blue/10 pb-1">
                   {BLOCKS.map((block) => {
-                    // show count badge per block
                     let count: number | null = null;
                     if (block.key === "block-tasks") count = m.analysis.tasks.length;
                     if (block.key === "block-decisions") count = m.analysis.key_decisions.length;
                     if (block.key === "block-redflags") count = m.analysis.red_flags.length;
                     if (block.key === "block-noowner") count = m.analysis.tasks_without_owner.length;
-                    if (block.key === "block-insights") count = m.analysis.historical_insights?.length || 0;
                     if (count === 0 && block.key !== "block-summary" && block.key !== "block-tasks") return null;
 
                     return (
                       <button
                         key={block.key}
                         onClick={() => navigateToBlock(m, block.key)}
-                        className="w-full text-right px-6 py-2 text-xs text-slate-600 hover:text-blue-700 hover:bg-blue-100/60 transition-colors flex items-center gap-2"
+                        className="w-full text-right px-6 py-2 text-xs text-slate-600 hover:text-hb-blue hover:bg-hb-blue/8 transition-colors flex items-center gap-2"
                       >
                         <span className="text-slate-400">{block.icon}</span>
                         <span>{block.label}</span>
@@ -120,11 +116,11 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
                   {m.analysis.historical_insights?.length > 0 && (
                     <button
                       onClick={() => navigateToBlock(m, "block-insights")}
-                      className="w-full text-right px-6 py-2 text-xs text-purple-600 hover:bg-purple-50 transition-colors flex items-center gap-2"
+                      className="w-full text-right px-6 py-2 text-xs text-hb-purple hover:bg-hb-purple/8 transition-colors flex items-center gap-2"
                     >
                       <TrendingUp size={13} />
                       <span>תובנות היסטוריות</span>
-                      <span className="mr-auto bg-purple-100 text-purple-600 rounded-full px-1.5 py-0.5 text-xs">
+                      <span className="mr-auto bg-hb-purple/10 text-hb-purple rounded-full px-1.5 py-0.5 text-xs">
                         {m.analysis.historical_insights.length}
                       </span>
                     </button>
@@ -134,7 +130,7 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
                       sessionStorage.setItem(`meeting_${m.id}`, JSON.stringify(m));
                       router.push(`/analysis/${m.id}`);
                     }}
-                    className="w-full text-right px-6 py-2 text-xs text-blue-600 font-semibold hover:underline"
+                    className="w-full text-right px-6 py-2 text-xs text-hb-blue font-semibold hover:underline"
                   >
                     פתח דיון מלא ←
                   </button>

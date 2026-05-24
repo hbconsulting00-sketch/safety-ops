@@ -26,10 +26,10 @@ export default function Dashboard({ meetings }: Props) {
   const allNoOwner = meetings.flatMap((m) => m.analysis.tasks_without_owner.map((t) => ({ task: t, meetingTitle: m.title, meetingId: m.id, meetingDate: m.meeting_date, meeting: m })));
 
   const cards = [
-    { key: "meetings" as PanelType, label: "דיונים", value: meetings.length, icon: <ShieldCheck size={18} />, color: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100" },
+    { key: "meetings" as PanelType, label: "דיונים", value: meetings.length, icon: <ShieldCheck size={18} />, color: "bg-hb-blue/8 text-hb-blue border-hb-blue/20 hover:bg-hb-blue/15" },
     { key: "open" as PanelType, label: "משימות פתוחות", value: openTasks.length, icon: <Clock size={18} />, color: "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100" },
     { key: "overdue" as PanelType, label: "באיחור", value: overdueTasks.length, icon: <AlertTriangle size={18} />, color: overdueTasks.length > 0 ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100" : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100" },
-    { key: "done" as PanelType, label: "הושלמו", value: doneTasks.length, icon: <CheckCircle2 size={18} />, color: "bg-green-50 text-green-700 border-green-200 hover:bg-green-100" },
+    { key: "done" as PanelType, label: "הושלמו", value: doneTasks.length, icon: <CheckCircle2 size={18} />, color: "bg-hb-green/8 text-hb-green border-hb-green/20 hover:bg-hb-green/15" },
     { key: "redflags" as PanelType, label: "דגלים אדומים", value: allRedFlags.length, icon: <AlertTriangle size={18} />, color: allRedFlags.length > 0 ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100" : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100" },
     { key: "noowner" as PanelType, label: "ללא אחראי", value: allNoOwner.length, icon: <Users size={18} />, color: allNoOwner.length > 0 ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100" : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100" },
   ];
@@ -42,12 +42,12 @@ export default function Dashboard({ meetings }: Props) {
   return (
     <div className="mb-6">
       <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">מצב נוכחי</h2>
-      <div className="grid grid-cols-3 gap-3 mb-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
         {cards.map((c) => (
           <button
             key={c.key}
             onClick={() => setPanel(panel === c.key ? null : c.key)}
-            className={`border rounded-xl p-3 flex items-center gap-3 transition-colors text-right cursor-pointer ${c.color} ${panel === c.key ? "ring-2 ring-offset-1 ring-blue-400" : ""}`}
+            className={`border rounded-xl p-3 flex items-center gap-3 transition-colors text-right cursor-pointer ${c.color} ${panel === c.key ? "ring-2 ring-offset-1 ring-hb-blue/50" : ""}`}
           >
             <span className="opacity-70">{c.icon}</span>
             <div>
@@ -58,11 +58,10 @@ export default function Dashboard({ meetings }: Props) {
         ))}
       </div>
 
-      {/* Panel */}
       {panel && (
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-slate-700 text-sm">
+            <h3 className="font-semibold text-hb-dark text-sm">
               {cards.find((c) => c.key === panel)?.label}
             </h3>
             <button onClick={() => setPanel(null)} className="text-slate-400 hover:text-slate-600">
@@ -76,10 +75,10 @@ export default function Dashboard({ meetings }: Props) {
                 <button
                   key={m.id}
                   onClick={() => goToMeeting(m)}
-                  className="w-full text-right flex items-center justify-between px-3 py-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                  className="w-full text-right flex items-center justify-between px-3 py-2.5 rounded-lg border border-slate-100 hover:border-hb-blue/30 hover:bg-hb-blue/5 transition-colors"
                 >
                   <div>
-                    <p className="font-medium text-slate-800 text-sm">{m.title}</p>
+                    <p className="font-medium text-hb-dark text-sm">{m.title}</p>
                     <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                       <Calendar size={11} />{formatDate(m.meeting_date, true)}
                     </p>
@@ -96,10 +95,10 @@ export default function Dashboard({ meetings }: Props) {
                 <button
                   key={i}
                   onClick={() => goToMeeting(t.meeting)}
-                  className="w-full text-right flex items-start gap-3 px-3 py-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                  className="w-full text-right flex items-start gap-3 px-3 py-2.5 rounded-lg border border-slate-100 hover:border-hb-blue/30 hover:bg-hb-blue/5 transition-colors"
                 >
                   <div className="flex-1">
-                    <p className="text-sm text-slate-800">{t.action}</p>
+                    <p className="text-sm text-hb-dark">{t.action}</p>
                     <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
                       <span>{t.meetingTitle}</span>
                       {t.deadline && <span className="flex items-center gap-0.5"><Calendar size={10} />{formatDate(t.deadline)}</span>}

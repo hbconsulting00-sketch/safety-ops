@@ -70,7 +70,7 @@ export default function HomePage() {
       <AppHeader />
 
       {/* Main layout */}
-      <div className="max-w-7xl mx-auto px-6 py-6 flex gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col lg:flex-row gap-6">
 
         {/* Left: Dashboard + Form */}
         <main className="flex-1 min-w-0">
