@@ -1,8 +1,14 @@
 import { Meeting, Task } from "./types";
+import { DEMO_MEETINGS } from "./demoData";
 
 export function getMeetings(): Meeting[] {
   if (typeof window === "undefined") return [];
-  return JSON.parse(localStorage.getItem("meetings") || "[]");
+  const stored = JSON.parse(localStorage.getItem("meetings") || "[]") as Meeting[];
+  if (stored.length === 0) {
+    localStorage.setItem("meetings", JSON.stringify(DEMO_MEETINGS));
+    return DEMO_MEETINGS;
+  }
+  return stored;
 }
 
 export function getMeeting(id: string): Meeting | null {
