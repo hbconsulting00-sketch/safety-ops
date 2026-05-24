@@ -7,7 +7,9 @@ import { Meeting } from "@/lib/types";
 import { getMeetings, saveMeeting } from "@/lib/storage";
 import MeetingHistorySidebar from "@/app/components/MeetingHistorySidebar";
 import Dashboard from "@/app/components/Dashboard";
+import CrossMeetingSummary from "@/app/components/CrossMeetingSummary";
 import AppHeader from "@/app/components/AppHeader";
+import DateInput from "@/app/components/DateInput";
 
 type InputMode = "text" | "file";
 
@@ -71,6 +73,7 @@ export default function HomePage() {
         {/* Left: Dashboard + Form */}
         <main className="flex-1 min-w-0">
           <Dashboard meetings={meetings} />
+          <CrossMeetingSummary meetings={meetings} />
 
           {/* כפתור דיון חדש / טופס */}
           {!showForm ? (
@@ -106,13 +109,10 @@ export default function HomePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">תאריך הדיון</label>
-                  <input
-                    type="date"
-                    value={meetingDate}
-                    onChange={(e) => setMeetingDate(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">
+                    תאריך הדיון <span className="text-xs font-normal text-slate-400">(יי/חח/שנה)</span>
+                  </label>
+                  <DateInput value={meetingDate} onChange={setMeetingDate} />
                 </div>
               </div>
 

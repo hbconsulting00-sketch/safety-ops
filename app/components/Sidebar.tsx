@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { ShieldCheck, Calendar, ChevronLeft, Plus } from "lucide-react";
 import { Meeting } from "@/lib/types";
+import { formatDate } from "@/lib/utils";
 
 interface SidebarProps {
   currentId: string;
@@ -79,7 +80,7 @@ export default function Sidebar({ currentId, meetings, blocks }: SidebarProps) {
               <span className="truncate">{m.title}</span>
               <span className="text-xs text-slate-400 flex items-center gap-1">
                 <Calendar size={11} />
-                {new Date(m.meeting_date).toLocaleDateString("he-IL")}
+                {formatDate(m.meeting_date)}
               </span>
             </button>
           ))}

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, ChevronLeft, Calendar, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { ShieldCheck, Calendar, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { Meeting } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import AppHeader from "@/app/components/AppHeader";
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -26,19 +27,7 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="border-b bg-white sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-3">
-          <ShieldCheck className="text-blue-600" size={26} />
-          <h1 className="text-xl font-bold text-slate-800">היסטוריית דיונים</h1>
-          <button
-            onClick={() => router.push("/")}
-            className="mr-auto flex items-center gap-1 text-sm text-blue-600 hover:underline"
-          >
-            <ChevronLeft size={16} />
-            דיון חדש
-          </button>
-        </div>
-      </header>
+      <AppHeader />
 
       <main className="max-w-4xl mx-auto px-6 py-8">
         {meetings.length === 0 ? (
