@@ -1,9 +1,9 @@
 import { Meeting, Task } from "./types";
-import { supabase } from "./supabase";
+import { getSupabase } from "./supabase";
 import { DEMO_MEETINGS } from "./demoData";
 
 export async function getMeetings(): Promise<Meeting[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("meetings")
     .select("*")
     .order("meeting_date", { ascending: false });
@@ -23,7 +23,7 @@ export async function getMeetings(): Promise<Meeting[]> {
 
 async function seedDemoMeetings() {
   for (const m of DEMO_MEETINGS) {
-    await supabase.from("meetings").upsert({
+    await getSupabase().from("meetings").upsert({
       id: m.id,
       title: m.title,
       meeting_date: m.meeting_date,
@@ -39,7 +39,7 @@ export async function getMeeting(id: string): Promise<Meeting | null> {
     if (cached) return JSON.parse(cached);
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("meetings")
     .select("*")
     .eq("id", id)
@@ -54,7 +54,7 @@ export async function saveMeeting(meeting: Meeting): Promise<void> {
     sessionStorage.setItem(`meeting_${meeting.id}`, JSON.stringify(meeting));
   }
 
-  await supabase.from("meetings").upsert({
+  await getSupabase().from("meetings").upsert({
     id: meeting.id,
     title: meeting.title,
     meeting_date: meeting.meeting_date,
