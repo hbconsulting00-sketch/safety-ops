@@ -10,6 +10,7 @@ import Dashboard from "@/app/components/Dashboard";
 import CrossMeetingSummary from "@/app/components/CrossMeetingSummary";
 import AppHeader from "@/app/components/AppHeader";
 import DateInput from "@/app/components/DateInput";
+import HeroSection from "@/app/components/HeroSection";
 
 type InputMode = "text" | "file";
 
@@ -74,6 +75,7 @@ export default function HomePage() {
 
         {/* Left: Dashboard + Form */}
         <main className="flex-1 min-w-0">
+          <HeroSection />
           <Dashboard meetings={meetings} />
           <CrossMeetingSummary meetings={meetings} />
 

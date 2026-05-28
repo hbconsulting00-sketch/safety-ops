@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Heebo, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import MobileDock from "@/app/components/MobileDock";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -22,8 +23,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl" className={cn("h-full", "antialiased", heebo.variable, "font-sans", geist.variable)}>
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+      <body className="min-h-full flex flex-col">
         {children}
+        <MobileDock />
       </body>
     </html>
   );
