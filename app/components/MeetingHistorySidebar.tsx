@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronLeft, Calendar, AlertTriangle, CheckCircle2, Clock, Users, TrendingUp, FileText } from "lucide-react";
+import { ChevronDown, ChevronLeft, Calendar, AlertTriangle, CheckCircle2, Clock, Users, TrendingUp, FileText, Trash2 } from "lucide-react";
+import { deleteMeeting } from "@/lib/storage";
 import { formatDate } from "@/lib/utils";
 import { Meeting } from "@/lib/types";
 
@@ -17,9 +18,10 @@ const BLOCKS = [
 interface Props {
   meetings: Meeting[];
   activeMeetingId?: string;
+  onDelete?: (id: string) => void;
 }
 
-export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Props) {
+export default function MeetingHistorySidebar({ meetings, activeMeetingId, onDelete }: Props) {
   const router = useRouter();
   const [openId, setOpenId] = useState<string | null>(activeMeetingId || meetings[0]?.id || null);
 
@@ -125,15 +127,31 @@ export default function MeetingHistorySidebar({ meetings, activeMeetingId }: Pro
                       </span>
                     </button>
                   )}
-                  <button
-                    onClick={() => {
-                      sessionStorage.setItem(`meeting_${m.id}`, JSON.stringify(m));
-                      router.push(`/analysis/${m.id}`);
-                    }}
-                    className="w-full text-right px-6 py-2 text-xs text-[#2E81C5] font-semibold hover:underline"
-                  >
-                    פתח דיון מלא ←
-                  </button>
+                  <div className="flex items-center border-t border-[#2E81C5]/10 mt-1">
+                    <button
+                      onClick={() => {
+                        sessionStorage.setItem(`meeting_${m.id}`, JSON.stringify(m));
+                        router.push(`/analysis/${m.id}`);
+                      }}
+                      className="flex-1 text-right px-6 py-2 text-xs text-[#2E81C5] font-semibold hover:underline"
+                    >
+                      פתח דיון מלא ←
+                    </button>
+                    {onDelete && (
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!window.confirm(`למחוק את הדיון "${m.title}"?\nפעולה זו לא ניתנת לביטול.`)) return;
+                          await deleteMeeting(m.id);
+                          onDelete(m.id);
+                        }}
+                        title="מחק דיון"
+                        className="px-3 py-2 text-slate-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

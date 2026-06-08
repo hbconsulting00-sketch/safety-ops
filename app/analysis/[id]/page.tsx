@@ -4,22 +4,87 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ShieldCheck, AlertTriangle, CheckCircle2, Clock,
-  Users, TrendingUp, ArrowRight, Download, ChevronLeft, TableIcon
+  Users, TrendingUp, ArrowRight, Download, TableIcon, Trash2, ChevronUp, ChevronDown, X
 } from "lucide-react";
 import { Meeting, Task, TaskStatus, HistoricalInsight } from "@/lib/types";
-import { getMeeting, getMeetings, updateTask, tasksToCSV } from "@/lib/storage";
+import { getMeeting, getMeetings, updateTask, reorderTasks, tasksToCSV, deleteMeeting } from "@/lib/storage";
 import { formatDate } from "@/lib/utils";
 import Sidebar from "@/app/components/Sidebar";
 import AppHeader from "@/app/components/AppHeader";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
-const STATUS_OPTIONS: TaskStatus[] = ["פתוח", "בתהליך", "הושלם", "באיחור"];
+const STATUS_OPTIONS: TaskStatus[] = ["פתוח", "בתהליך", "הושלם", "באיחור", "מושהה"];
 
 const STATUS_COLORS: Record<string, string> = {
-  "פתוח": "bg-blue-100 text-blue-700",
-  "בתהליך": "bg-yellow-100 text-yellow-700",
-  "הושלם": "bg-green-100 text-green-700",
-  "באיחור": "bg-red-100 text-red-700",
+  "פתוח":    "bg-blue-100 text-blue-700",
+  "בתהליך":  "bg-yellow-100 text-yellow-700",
+  "הושלם":   "bg-green-100 text-green-700",
+  "באיחור":  "bg-red-100 text-red-700",
+  "מושהה":   "bg-orange-100 text-orange-700",
 };
+
+function ResponsiblePicker({
+  value, onChange, allNames,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  allNames: string[];
+}) {
+  const [newName, setNewName] = useState("");
+  const selected = value ? value.split(", ").filter(Boolean) : [];
+  const remaining = allNames.filter((n) => !selected.includes(n));
+
+  const add = (name: string) => {
+    const t = name.trim();
+    if (!t || selected.includes(t)) return;
+    onChange([...selected, t].join(", "));
+    setNewName("");
+  };
+  const remove = (name: string) => onChange(selected.filter((n) => n !== name).join(", "));
+
+  return (
+    <div className="space-y-1">
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {selected.map((n) => (
+            <span key={n} className="inline-flex items-center gap-1 bg-[#2E81C5]/10 text-[#2E81C5] text-xs px-2 py-0.5 rounded-full">
+              {n}
+              <button type="button" onClick={() => remove(n)} className="hover:text-red-500 leading-none">
+                <X size={10} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      {remaining.length > 0 && (
+        <select
+          value=""
+          onChange={(e) => { if (e.target.value) add(e.target.value); }}
+          className="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#2E81C5]"
+        >
+          <option value="">+ בחר מהרשימה</option>
+          {remaining.map((n) => <option key={n} value={n}>{n}</option>)}
+        </select>
+      )}
+      <div className="flex gap-1">
+        <input
+          className="flex-1 border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#2E81C5]"
+          placeholder="הוסף שם חדש..."
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(newName); } }}
+        />
+        {newName.trim() && (
+          <button type="button" onClick={() => add(newName)}
+            className="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs hover:bg-slate-200">
+            הוסף
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const INSIGHT_ICONS: Record<HistoricalInsight["type"], React.ReactNode> = {
   owner_performance: <Users size={18} />,
@@ -33,39 +98,62 @@ const INSIGHT_ICONS: Record<HistoricalInsight["type"], React.ReactNode> = {
 };
 
 function EditableTask({
-  task,
-  index,
-  onSave,
+  task, index, isFirst, isLast, allNames, onSave, onReorder,
 }: {
   task: Task;
   index: number;
+  isFirst: boolean;
+  isLast: boolean;
+  allNames: string[];
   onSave: (index: number, patch: Partial<Task>) => void;
+  onReorder: (index: number, dir: "up" | "down") => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task);
 
   useEffect(() => { setDraft(task); }, [task]);
 
+  const names = task.responsible ? task.responsible.split(", ").filter(Boolean) : [];
+
   if (!editing) {
     return (
-      <tr
-        className="hover:bg-slate-50 cursor-pointer transition-colors group"
-        onClick={() => setEditing(true)}
-        title="לחץ לעריכה"
-      >
+      <tr className="hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => setEditing(true)} title="לחץ לעריכה">
         <td className="py-3 pr-2 text-slate-800 font-medium">{task.action}</td>
-        <td className="py-3 px-4 text-slate-600">
-          {task.responsible || <span className="text-red-400 italic">לא הוגדר</span>}
+        <td className="py-3 px-3 text-slate-600">
+          {names.length > 0
+            ? <div className="flex flex-wrap gap-1">
+                {names.map((n) => (
+                  <span key={n} className="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded-full">{n}</span>
+                ))}
+              </div>
+            : <span className="text-red-400 italic text-sm">לא הוגדר</span>
+          }
         </td>
-        <td className="py-3 px-4 text-slate-600">
-          {task.deadline
-            ? formatDate(task.deadline)
-            : <span className="text-slate-400 italic">לא הוגדר</span>}
+        <td className="py-3 px-3 text-slate-600 text-sm">
+          {task.deadline ? formatDate(task.deadline) : <span className="text-slate-400 italic">לא הוגדר</span>}
         </td>
-        <td className="py-3 pl-2">
-          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[task.status] || "bg-slate-100 text-slate-600"}`}>
-            {task.status}
-          </span>
+        <td className="py-3 px-3">
+          <Badge className={STATUS_COLORS[task.status] || "bg-slate-100 text-slate-600"}>{task.status}</Badge>
+        </td>
+        <td className="py-3 pl-2 w-12" onClick={(e) => e.stopPropagation()}>
+          <div className="flex flex-col gap-0.5 items-center">
+            <button
+              onClick={() => onReorder(index, "up")}
+              disabled={isFirst}
+              className="p-0.5 rounded text-slate-400 hover:text-[#2E81C5] hover:bg-slate-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+              title="הזז למעלה"
+            >
+              <ChevronUp size={14} />
+            </button>
+            <button
+              onClick={() => onReorder(index, "down")}
+              disabled={isLast}
+              className="p-0.5 rounded text-slate-400 hover:text-[#2E81C5] hover:bg-slate-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+              title="הזז למטה"
+            >
+              <ChevronDown size={14} />
+            </button>
+          </div>
         </td>
       </tr>
     );
@@ -81,15 +169,14 @@ function EditableTask({
           onChange={(e) => setDraft((d) => ({ ...d, action: e.target.value }))}
         />
       </td>
-      <td className="py-2 px-4">
-        <input
-          className="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#2E81C5]"
+      <td className="py-2 px-3">
+        <ResponsiblePicker
           value={draft.responsible}
-          onChange={(e) => setDraft((d) => ({ ...d, responsible: e.target.value }))}
-          placeholder="שם האחראי"
+          onChange={(v) => setDraft((d) => ({ ...d, responsible: v }))}
+          allNames={allNames}
         />
       </td>
-      <td className="py-2 px-4">
+      <td className="py-2 px-3">
         <input
           type="date"
           className="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#2E81C5]"
@@ -97,33 +184,28 @@ function EditableTask({
           onChange={(e) => setDraft((d) => ({ ...d, deadline: e.target.value }))}
         />
       </td>
-      <td className="py-2 pl-2">
+      <td className="py-2 px-3">
         <div className="flex flex-col gap-1">
           <select
             className="border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#2E81C5]"
             value={draft.status}
             onChange={(e) => setDraft((d) => ({ ...d, status: e.target.value as TaskStatus }))}
           >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
+            {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <div className="flex gap-1">
             <button
               onClick={() => { onSave(index, draft); setEditing(false); }}
               className="flex-1 text-xs bg-[#2E81C5] text-white rounded-lg py-1 hover:bg-[#2E81C5]/90 transition-colors"
-            >
-              שמור
-            </button>
+            >שמור</button>
             <button
               onClick={() => { setDraft(task); setEditing(false); }}
               className="flex-1 text-xs bg-white border border-slate-300 text-slate-600 rounded-lg py-1 hover:bg-slate-50 transition-colors"
-            >
-              בטל
-            </button>
+            >בטל</button>
           </div>
         </div>
       </td>
+      <td className="py-2 pl-2 w-12" />
     </tr>
   );
 }
@@ -146,6 +228,20 @@ export default function AnalysisPage() {
       getMeetings().then(setAllMeetings);
     }
   }, [id]);
+
+  const handleReorder = useCallback(async (taskIndex: number, dir: "up" | "down") => {
+    if (!meeting) return;
+    const tasks = [...meeting.analysis.tasks];
+    const swap = dir === "up" ? taskIndex - 1 : taskIndex + 1;
+    if (swap < 0 || swap >= tasks.length) return;
+    [tasks[taskIndex], tasks[swap]] = [tasks[swap], tasks[taskIndex]];
+    const updated = await reorderTasks(id, tasks);
+    if (updated) setMeeting({ ...updated });
+  }, [id, meeting]);
+
+  const allNames = [...new Set(
+    allMeetings.flatMap((m) => m.analysis.tasks.map((t) => t.responsible).filter(Boolean))
+  )].sort();
 
   const handleExportCSV = () => {
     if (!meeting) return;
@@ -186,7 +282,7 @@ export default function AnalysisPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-200">
+    <div className="min-h-screen bg-[#f5ede0]">
       <AppHeader title={meeting.title} subtitle={formatDate(meeting.meeting_date, true)} />
       {/* Action buttons */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex justify-end gap-2 flex-wrap print:hidden">
@@ -203,6 +299,17 @@ export default function AnalysisPage() {
         >
           <Download size={15} />
           PDF
+        </button>
+        <button
+          onClick={async () => {
+            if (!window.confirm(`למחוק את הדיון "${meeting.title}"?\nפעולה זו לא ניתנת לביטול.`)) return;
+            await deleteMeeting(id);
+            router.push("/");
+          }}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg text-sm font-medium text-red-600 transition-colors"
+        >
+          <Trash2 size={15} />
+          מחק דיון
         </button>
       </div>
 
@@ -255,23 +362,28 @@ export default function AnalysisPage() {
               </span>
               <span className="text-xs text-slate-400 italic">לחץ על שורה לעריכה</span>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 text-slate-500 text-right">
-                    <th className="pb-3 font-semibold pr-2">פעולה</th>
-                    <th className="pb-3 font-semibold px-4">אחראי</th>
-                    <th className="pb-3 font-semibold px-4">דדליין</th>
-                    <th className="pb-3 font-semibold pl-2">סטטוס</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {analysis.tasks.map((task: Task, i) => (
-                    <EditableTask key={i} task={task} index={i} onSave={handleSaveTask} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>פעולה</TableHead>
+                  <TableHead>אחראי</TableHead>
+                  <TableHead>דדליין</TableHead>
+                  <TableHead>סטטוס</TableHead>
+                  <TableHead className="w-10">סדר</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {analysis.tasks.map((task: Task, i) => (
+                  <EditableTask
+                    key={i} task={task} index={i}
+                    isFirst={i === 0} isLast={i === analysis.tasks.length - 1}
+                    allNames={allNames}
+                    onSave={handleSaveTask}
+                    onReorder={handleReorder}
+                  />
+                ))}
+              </TableBody>
+            </Table>
           </section>
 
           {/* 4. דגלים אדומים */}

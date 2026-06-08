@@ -1,4 +1,4 @@
-export type TaskStatus = "פתוח" | "בתהליך" | "הושלם" | "באיחור";
+export type TaskStatus = "פתוח" | "בתהליך" | "הושלם" | "באיחור" | "מושהה";
 
 export interface Task {
   action: string;

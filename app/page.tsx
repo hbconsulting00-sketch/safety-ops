@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, FileText, Loader2, Plus, X } from "lucide-react";
 import { Meeting } from "@/lib/types";
-import { getMeetings, saveMeeting } from "@/lib/storage";
+import { getMeetings, saveMeeting, deleteMeeting } from "@/lib/storage";
 import MeetingHistorySidebar from "@/app/components/MeetingHistorySidebar";
 import Dashboard from "@/app/components/Dashboard";
 import CrossMeetingSummary from "@/app/components/CrossMeetingSummary";
@@ -52,13 +52,40 @@ export default function HomePage() {
 
       const res = await fetch("/api/analyze", { method: "POST", body: formData });
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "שגיאה בעיבוד");
+        let errorMsg = "שגיאה בעיבוד הפרוטוקול. אנא נסה שנית.";
+        try {
+          const data = await res.json();
+          errorMsg = data.error || errorMsg;
+        } catch { /* server returned non-JSON */ }
+        throw new Error(errorMsg);
       }
 
-      const meeting: Meeting = await res.json();
-      await saveMeeting(meeting);
-      router.push(`/analysis/${meeting.id}`);
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+      }
+      accumulated += decoder.decode();
+
+      const resultIdx = accumulated.indexOf("[[RESULT]]");
+      if (resultIdx !== -1) {
+        const meeting: Meeting = JSON.parse(accumulated.substring(resultIdx + "[[RESULT]]".length));
+        await saveMeeting(meeting);
+        router.push(`/analysis/${meeting.id}`);
+      } else {
+        const errorIdx = accumulated.indexOf("[[ERROR]]");
+        let errorMsg = "שגיאה בעיבוד הפרוטוקול. אנא נסה שנית.";
+        if (errorIdx !== -1) {
+          try {
+            const errData = JSON.parse(accumulated.substring(errorIdx + "[[ERROR]]".length));
+            errorMsg = errData.error || errorMsg;
+          } catch { /* ignore parse error */ }
+        }
+        throw new Error(errorMsg);
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "שגיאה לא ידועה");
     } finally {
@@ -67,7 +94,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-200">
+    <div className="min-h-screen bg-[#f5ede0]">
       <AppHeader />
 
       {/* Main layout */}
@@ -76,8 +103,8 @@ export default function HomePage() {
         {/* Left: Dashboard + Form */}
         <main className="flex-1 min-w-0">
           <HeroSection />
-          <Dashboard meetings={meetings} />
           <CrossMeetingSummary meetings={meetings} />
+          <Dashboard meetings={meetings} />
 
           {/* כפתור דיון חדש / טופס */}
           {!showForm ? (
@@ -191,7 +218,12 @@ export default function HomePage() {
         </main>
 
         {/* Right: Meeting history sidebar */}
-        <MeetingHistorySidebar meetings={meetings} />
+        <MeetingHistorySidebar
+          meetings={meetings}
+          onDelete={async (id) => {
+            setMeetings((prev) => prev.filter((m) => m.id !== id));
+          }}
+        />
       </div>
     </div>
   );

@@ -13,16 +13,24 @@ export async function getMeetings(): Promise<Meeting[]> {
     return [];
   }
 
-  if (!data || data.length === 0) {
-    await seedDemoMeetings();
-    return [...DEMO_MEETINGS].reverse();
+  const rows = (data || []) as Meeting[];
+  const existingIds = new Set(rows.map((m) => m.id));
+  const missingDemos = DEMO_MEETINGS.filter((m) => !existingIds.has(m.id));
+
+  if (missingDemos.length > 0) {
+    await seedDemoMeetings(missingDemos);
+    const { data: refreshed } = await getSupabase()
+      .from("meetings")
+      .select("*")
+      .order("meeting_date", { ascending: false });
+    return (refreshed || []) as Meeting[];
   }
 
-  return data as Meeting[];
+  return rows;
 }
 
-async function seedDemoMeetings() {
-  for (const m of DEMO_MEETINGS) {
+async function seedDemoMeetings(meetings: Meeting[] = DEMO_MEETINGS) {
+  for (const m of meetings) {
     await getSupabase().from("meetings").upsert({
       id: m.id,
       title: m.title,
@@ -73,6 +81,21 @@ export async function updateTask(
   meeting.analysis.tasks[taskIndex] = { ...meeting.analysis.tasks[taskIndex], ...patch };
   await saveMeeting(meeting);
   return meeting;
+}
+
+export async function reorderTasks(meetingId: string, newTasks: Task[]): Promise<Meeting | null> {
+  const meeting = await getMeeting(meetingId);
+  if (!meeting) return null;
+  meeting.analysis.tasks = newTasks;
+  await saveMeeting(meeting);
+  return meeting;
+}
+
+export async function deleteMeeting(id: string): Promise<void> {
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem(`meeting_${id}`);
+  }
+  await getSupabase().from("meetings").delete().eq("id", id);
 }
 
 export function tasksToCSV(meeting: Meeting): string {

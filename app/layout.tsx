@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl" className={cn("h-full", "antialiased", heebo.variable, "font-sans", geist.variable)}>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" style={{ backgroundColor: "#f5ede0" }}>
         {children}
         <MobileDock />
       </body>
